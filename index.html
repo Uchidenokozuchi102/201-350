@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英単語暗記帳 (201-350)</title>
+    <style>
+        /* CSS: 変更なし */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding-bottom: 160px; 
+        }
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px 25px 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+        }
+        .tab-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .tab-button {
+            padding: 8px 15px;
+            cursor: pointer;
+            border: 1px solid #dee2e6;
+            background-color: #f8f9fa;
+            font-size: 0.9em;
+            color: #495057;
+            border-radius: 18px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .tab-button.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+            font-weight: bold;
+        }
+        .tab-button:hover:not(.active) {
+            background-color: #e9ecef;
+        }
+        .footer-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
+            border-top: 1px solid #e0e0e0;
+            z-index: 100;
+            padding: 10px 0;
+        }
+        .footer-controls-inner {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
+        #flashcard { margin-bottom: 10px; }
+        .status-buttons { margin-bottom: 15px; display: flex; gap: 10px;}
+        .settings-menu-button { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.8em; cursor: pointer; color: #555; padding: 5px; line-height: 1; }
+        .settings-menu-button:hover { color: #000; }
+        .settings-dropdown { position: absolute; top: 55px; right: 15px; background-color: white; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10; padding: 10px; display: none; }
+        .settings-dropdown button { display: block; width: 100%; padding: 10px 15px; font-size: 0.95em; text-align: left; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap; }
+        .settings-dropdown button:hover { background-color: #5a6268; }
+        .main-filters-container { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; margin-top: 10px; }
+        .status-filters { text-align: center; display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+        .status-filters button { padding: 8px 12px; font-size: 0.9em; border: 1px solid #ccc; border-radius: 16px; cursor: pointer; background-color: #f8f9fa; transition: background-color 0.2s, border-color 0.2s, color 0.2s; min-width: 85px; }
+        .status-filters button.active-status-filter { background-color: #007bff; color: white; border-color: #007bff; font-weight: bold; }
+        .filter-title { font-size: 0.8em; color: #666; margin-bottom: 5px; text-align: center; font-weight: bold; }
+        .display-mode-switch { display: flex; align-items: center; justify-content: flex-end; margin-bottom: 10px; font-size: 0.9em; color: #555; }
+        .display-mode-switch label { margin-right: 8px; }
+        .display-mode-switch input[type="checkbox"] { margin-left: 5px; transform: scale(1.1); cursor: pointer; }
+        #flashcard { position: relative; background-color: #fdfdfd; border: 1px solid #d1d9e0; border-radius: 10px; padding: 30px 20px; min-height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: background-color 0.3s; }
+        #flashcard.showing-meaning { background-color: #e9f5ff; }
+        #play-audio-button { position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 1.5em; cursor: pointer; color: #777; padding: 5px; line-height: 1; z-index: 5; }
+        #play-audio-button:hover { color: #007bff; }
+        #play-audio-button.playing { color: #0056b3; }
+        #word-display { font-size: 2.2em; font-weight: bold; color: #2c3e50; text-align: center; padding-right: 40px; }
+        .details-display { font-size: 1em; color: #34495e; text-align: left; width: 100%; }
+        .details-display p { margin: 8px 0; line-height: 1.5; }
+        .details-display strong { font-size: 1.1em; color: #1a2530; }
+        .word-id-display { text-align: right; font-size: 0.8em; color: #888; margin-top: 10px; }
+        .hidden { display: none !important; }
+        .status-buttons button { flex-grow: 1; padding: 10px 8px; font-size: 0.9em; border: 2px solid transparent; border-radius: 8px; cursor: pointer; transition: all 0.2s ease-in-out; opacity: 0.7; transform: scale(0.95); }
+        .status-buttons button.selected { font-size: 1em; font-weight: bold; opacity: 1; transform: scale(1); }
+        .status-buttons button.status-not-yet { background-color: #fff3cd; border-color: #ffeeba; color: #856404; }
+        .status-buttons button.status-learned { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        .status-buttons button.status-perfect { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .status-buttons button.status-not-yet.selected { background-color: #ffc107; color: #333; border-color: #e0a800;}
+        .status-buttons button.status-learned.selected { background-color: #17a2b8; color: white; border-color: #117a8b;}
+        .status-buttons button.status-perfect.selected { background-color: #28a745; color: white; border-color: #1c7430;}
+        .navigation { display: flex; flex-direction: column; align-items: center; }
+        .nav-buttons-container { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px; }
+        #progress-indicator { font-size: 0.9em; color: #555; }
+        #prev-button, #next-button { background-color: #007bff; color: white; padding: 10px 18px; border: none; border-radius: 8px; font-size: 1em; }
+        #prev-button:hover, #next-button:hover { background-color: #0056b3; }
+        #seek-bar { width: 100%; margin: 5px 0; }
+        #seek-bar:disabled { opacity: 0.5; cursor: not-allowed; }
+        #status-message { margin-top:15px; font-size: 0.95em; color: #495057; min-height: 1.3em; text-align: center; }
+        .no-words-message { text-align: center; font-size: 1.1em; color: #6c757d; padding: 25px 15px; border: 1px dashed #ced4da; border-radius: 8px; background-color: #f8f9fa; }
+
+        #meaning-p { font-size: 1.4em; font-weight: bold; color: #0056b3; margin-bottom: 15px; }
+        #meaning-p strong { font-size: 0.7em; font-weight: normal; color: #555; display: block; margin-bottom: 2px; }
+        #example-en-p, #example-ja-p { font-size: 1.1em; line-height: 1.5; background-color: #f8f9fa; padding: 10px; border-radius: 6px; border-left: 4px solid #007bff; }
+        #example-en-p { margin-bottom: 5px; }
+        #example-ja-p { margin-top: 0px; margin-bottom: 15px; }
+        #example-en-p strong, #example-ja-p strong { font-size: 0.8em; font-weight: normal; color: #555; display: block; margin-bottom: 4px; }
+        /* 下線部分を赤文字にするためのCSS */
+        #example-en-span span, #example-ja-span span { color: red; }
+        
+        @media (max-width: 600px) {
+            .main-container { padding: 10px; }
+            .container { padding: 15px; }
+            body { padding-bottom: 140px; font-size: 14px; }
+            .tab-button { padding: 6px 12px; font-size: 0.85em; }
+            .footer-controls-inner { padding: 0 10px; }
+            .settings-menu-button { font-size: 1.5em; top: 10px; right: 10px; }
+            .settings-dropdown { top: 45px; padding: 8px; }
+            .settings-dropdown button { padding: 8px 12px; font-size: 0.9em; }
+            .main-filters-container { gap: 10px; margin-bottom: 15px; margin-top: 5px; }
+            .status-filters { gap: 6px; }
+            .status-filters button { padding: 6px 10px; font-size: 0.8em; min-width: 70px; }
+            .filter-title { font-size: 0.75em; margin-bottom: 3px; }
+            .display-mode-switch { margin-bottom: 8px; font-size: 0.85em; }
+            .display-mode-switch input[type="checkbox"] { transform: scale(1.0); }
+            #flashcard { padding: 15px; min-height: 140px; margin-bottom: 10px; }
+            #play-audio-button { font-size: 1.3em; top: 8px; right: 8px; padding: 3px; }
+            #word-display { font-size: 1.8em; padding-right: 30px; }
+            .details-display { font-size: 0.9em; }
+            .details-display p { margin: 6px 0; line-height: 1.4; }
+            .details-display strong { font-size: 1.0em; }
+            .word-id-display { font-size: 0.75em; margin-top: 8px; }
+            #meaning-p { font-size: 1.3em; }
+            #example-en-p, #example-ja-p { font-size: 1.0em; padding: 8px; }
+            .status-buttons { margin-bottom: 10px; gap: 8px; }
+            .status-buttons button { padding: 8px 6px; font-size: 0.8em; }
+            .status-buttons button.selected { font-size: 0.85em; }
+            .navigation { margin-bottom: 0; }
+            .nav-buttons-container { margin-bottom: 5px; }
+            #progress-indicator { font-size: 0.85em; }
+            #prev-button, #next-button { padding: 8px 12px; font-size: 0.9em; }
+            #seek-bar { margin: 3px 0; }
+            #status-message { margin-top: 10px; font-size: 0.85em; min-height: 1.2em; }
+            .no-words-message { font-size: 1em; padding: 20px 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="container">
+            <button class="settings-menu-button" id="settings-toggle-button" aria-label="設定メニューを開く">⚙️</button>
+            <div class="settings-dropdown" id="settings-dropdown-menu">
+                <button id="reset-data-button">学習記録をリセット</button>
+            </div>
+
+            <div class="tab-container" id="tab-container">
+                <!-- タブはJavaScriptで動的に生成されます -->
+            </div>
+
+            <div class="main-filters-container">
+                <div>
+                    <div class="filter-title">学習状況で絞り込み:</div>
+                    <div class="status-filters">
+                        <button id="status-filter-all" data-status-filter="all_statuses">全て</button>
+                        <button id="status-filter-not-yet" data-status-filter="not_yet">まだ</button>
+                        <button id="status-filter-learned" data-status-filter="learned">覚えた</button>
+                        <button id="status-filter-perfect" data-status-filter="perfect">完璧</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="display-mode-switch">
+                <label for="random-mode-checkbox">ランダム表示:</label>
+                <input type="checkbox" id="random-mode-checkbox">
+            </div>
+
+            <div id="flashcard-area">
+                <div id="flashcard">
+                    <button id="play-audio-button" title="発音を聞く">🔊</button>
+                    <div id="word-display">英単語</div>
+                    <div id="details-display" class="hidden details-display">
+                        <p id="meaning-p"><strong>日本語訳:</strong> <span id="meaning-span"></span></p>
+                        <p id="example-en-p" class="hidden"><strong>例文 (英):</strong> <span id="example-en-span"></span></p>
+                        <p id="example-ja-p" class="hidden"><strong>例文 (日):</strong> <span id="example-ja-span"></span></p>
+                        <p id="notes-p" class="hidden"><strong>補足:</strong> <span id="notes-span"></span></p>
+                        <p><strong>発音:</strong> <span id="pronunciation-span"></span></p>
+                        <p><strong>品詞:</strong> <span id="pos-span"></span></p>
+                        <p class="word-id-display">ID: <span id="word-id-span"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div id="no-words-message" class="hidden no-words-message">
+                この条件に一致する単語はありません。
+            </div>
+            <div id="status-message">カードをクリックすると詳細が表示/非表示されます。</div>
+        </div>
+    </div>
+
+    <div class="footer-controls">
+        <div class="footer-controls-inner">
+            <div class="status-buttons">
+                <button id="status-btn-not-yet" data-status="not_yet" class="status-not-yet">まだ</button>
+                <button id="status-btn-learned" data-status="learned" class="status-learned">覚えた</button>
+                <button id="status-btn-perfect" data-status="perfect" class="status-perfect">完璧！</button>
+            </div>
+            <div class="navigation">
+                <div class="nav-buttons-container">
+                    <button id="prev-button">← 前へ</button>
+                    <span id="progress-indicator">1 / N</span>
+                    <button id="next-button">次へ →</button>
+                </div>
+                <input type="range" id="seek-bar" value="0" min="0" max="0">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const wordDataSetsText = {
+            '201-250': `
+名詞
+0201
+sight
+[sáit]
+見ること、光景、視力
+◆catch sight of A 「Aを見つける」 | ⇔lose sight of A 「Aを見失う」 | ◆at the sight of A 「Aを見て」 | ◆in sight 「見えるところに」 | ⇔out of sight 「見えないところに」 | ◇sightseeing 名 観光、見物 | 例 go sightseeing in Venice「ヴェネツィアに観光に行く」
+▶ love at first <span>sight</span>
+<span>一目</span>ぼれ
+0202
+taste
+[téist]
+味、好み 
+味覚、趣味 動 ①〜の味見する ②～の味がする | (諺)There is no accounting for taste. 「人の好みは説明できない(=たで食う虫も好き好き)」 | Q (服のセンスがいい？)は？ | A Have good taste in clothes (senseは用いない) | ◇bite 動 〜を噛む；噛みつく 名 痛むこと | ◇swallow 動 〜を飲み込む | ◇chew 動 (食べ物)を噛んで食べる；噛む
+▶ a <span>taste</span> of lemon
+レモンの<span>味</span>
+0203
+range
+[réindʒ]
+範囲、領域 
+動 (範囲などが)及ぶ、またがる | ◆mountain range 「山脈」 | ◆range from A to B 「AからBに及ぶ」
+▶ a wide <span>range</span> of information
+広<span>範囲</span>の情報
+0204
+appointment
+[əpɔ́intmənt]
+約束、予約
+◇appoint 動 (会う日時・場所)を指定する；〜を任命する | (例) appoint the time「指定の時刻」 | Q promiseとどう違う？ A promiseはある行為を実行する約束。appointmentは用事で人に会う時と場所を決めること。
+▶ make an <span>appointment with</span> the doctor
+医者に<span>予約</span>する
+0205
+patient
+[péiʃənt]
+患者、忍耐強い(形)
+しんぼう強い | ⇔impatient 形 我慢できない、いらいらする
+◇patience 名 忍耐(力)、我慢
+▶ a doctor and a <span>patient</span>
+医者と<span>患者</span>
+0206
+project
+[prɑ́dʒekt]
+計画、企画
+動 〜を見積もる、予測する | (例) the projected cost「見積もった費用」
+▶ a business <span>project</span>
+事業<span>計画</span>
+0207
+favor
+[féivər]
+好意、親切 
+動 〜を支持する、好む | ◆do A a favor 「Aの頼みを聞く」 | ◆ask A a favor 「Aに頼みごとをする」 =ask a favor of A | ◆in favor of A 「Aを支持して、Aの有利に」 | ◇favorite 形 大好きな 名 お気に入り | ◇favorable 形 (人に)好意的な、有利な
+▶ Would you <span>do</span> me a <span>favor</span>?
+<span>頼み</span>をきいてもらえませんか
+0208
+appearance
+[əpíərəns]
+外見、様子、出現
+◇appear 動 ①〜に見える ②現れる
+◇disappear 動 消える
+▶ differ in <span>appearance</span>
+<span>外見</span>が違う
+0209
+risk
+[rísk]
+危険、危険性 
+動 (命など)を賭ける；〜を覚悟でやる | ◆at the risk of A 「Aの危険を冒して」 | ◆run the risk of A 「Aの危険を冒す」 | ◇risky 形 危険な
+▶ <span>run the risk</span> of losing money
+お金を失う<span>危険</span>を冒す
+0210
+benefit
+[bénəfit]
+利益、恩恵
+動 〜の利益になる；(+ from A) Aから利益を得る | ★得になること全般。profitは主に金銭的な「もうけ」 | ◇beneficial 形 有益な
+▶ costs and <span>benefits</span> of the business
+仕事のコストと<span>利益</span>
+0211
+resident
+[rézidənt]
+住民、滞在者 
+形 住んでいる | ◇residence 名 住宅、家 | ◇residential 形 居住用の、住宅の | ◇reside 動 住む、存在している | ★inhabitant「住人」とは異なり、residentはホテルなどに一時的に滞在する人にも使える。
+▶ <span>resident</span>s of New York
+ニューヨークの<span>住民</span>
+0212
+relative
+[rélətiv]
+親戚、親族 
+★relativeには家族も含まれる。 | 形 相対的な、比較上の | ◆relative to A 「Aに比べて」 | ◇relativity 名 相対性
+▶ their <span>relative</span>s and friends
+彼らの<span>親戚</span>と友達
+0213
+region
+[ríːdʒən]
+地域
+地方、領域、分野 | ◇regional 形 地域(の)、地方の
+▶ a mountain <span>region</span>
+山岳<span>地方</span>
+0214
+characteristic
+[kæ̀riktərístik]
+特徴、特色
+形 特有の | ◆a characteristic of A 「Aに特有である」
+▶ <span>unique characteristic</span>s
+ユニークな<span>特徴</span>
+0215
+pain
+[péin]
+苦痛 
+(〜s)苦労、骨折り(= trouble) | ◆take pains to V 「Vしようと骨を折る」 | ◇painful 形 ①痛い②骨の折れる
+▶ feel a sharp <span>pain</span>
+鋭い<span>痛み</span>を感じる
+0216
+twin
+[twín]
+双子の一方、双生児
+形 双子の | ◆fraternal twins 「二卵性双生児」 | ◆twin room 「ツインルーム」 | ★ホテルのツインベッドのある部屋。
+▶ a pair of <span>identical twin</span>s
+一組の一卵性<span>双生児</span>
+0217
+occasion
+[əkéiʒən]
+場合、機会
+行事(= event)  | ◆on occasion 「時々(= occasionally)」
+▶ <span>on</span> special <span>occasion</span>s
+特別な<span>場合</span>に
+0218
+principle
+[prínsəpl]
+原理、原則
+主義、信念 | ◆in principle 「原則的には」
+▶ the <span>principle</span> of free trade
+自由貿易の<span>原則</span>
+0219
+department
+[dipɑ́ːrtmənt]
+部門、学科
+(組織の)部門、(大学などの)学科、課、省 | ◆department store 「デパート」 | ★ひとつひとつの売場がdepartmentだ。
+▶ the history <span>department</span>
+歴史<span>学科</span>
+0220
+duty
+[djúːti]
+義務、関税
+任務 | ◇duty-free 形 免税の | ◆be on duty 「任務についている」
+▶ It is my <span>duty</span> to help you.
+君を助けるのが私の<span>義務</span>だ
+0221
+scene
+[síːn]
+場面、現場
+眺め、光景 | ◇scenery 名 風景、景色  | ◇scenic 形 風景の、景色のよい
+▶ the <span>scene</span> of the accident
+事故<span>現場</span>
+0222
+jam
+[dʒǽm]
+渋滞
+込み合い、ジャム 動 〜を詰め込む | ◆be jammed 「(場所が)ぎゅうぎゅう詰めである、いっぱいだ」 | ◇congestion 名 渋滞；うっ血、充血
+▶ avoid <span>traffic jam</span>s
+交通<span>渋滞</span>を避ける
+0223
+spirit
+[spírit]
+精神
+霊、気分 | ◇spiritual 形 精神的な、霊的な
+▶ the <span>spirit</span> of fair play
+フェアプレーの<span>精神</span>
+0224
+medium
+[míːdiəm]
+手段、媒体 
+形 中間の (例) medium size「並のサイズ」 | 源 中間にあるもの→手段(＝人と目的の間にあるもの) | Q mediumの複数形は？ A. media
+▶ the <span>medium</span> of communication
+コミュニケーションの<span>手段</span>
+0225
+mass
+[mǽs]
+一般大衆、多くの
+①(the masses)一般大衆 ②(a mass of A)多くのA ③かたまり | ◆the mass media「マスメディア(新聞・テレビなど)」 | ◆mass communication「マスコミ(による伝達)」 | ◇massive 形 大きくて重い、大規模の
+▶ <span>mass</span> production
+<span>大量</span>生産
+0226
+audience
+[ɔ́ːdiəns]
+聴衆、観客
+×many / few audiences | ★「多い/少ない観客」は、a large / small audienceという。
+▶ gather a large <span>audience</span>
+大勢の<span>観客</span>を集める
+0227
+element
+[éləmənt]
+要素、元素
+①要素(= factor) ②元素 ③(the elements)自然の力、悪天候 | ◇elementary 形 初歩の | ◆elementary school 「小学校」
+▶ the most important <span>element</span>
+最も重要な<span>要素</span>
+0228
+climate
+[kláimit]
+気候
+ (政治・文化などの)状況(= situation)、雰囲気(= atmosphere)  | (例) the political climate「政治情勢」
+▶ global <span>climate</span> change
+地球規模の<span>気候</span>変動
+0229
+revolution
+[rèvəlúːʃən]
+革命
+回転 | ◆the industrial revolution 「産業革命」 | ◇revolutionary 形 革命の、革命的な | ◇revolve 動 回転する、循環する
+▶ the French <span>Revolution</span>
+フランス<span>革命</span>
+0230
+quarter
+[kwɔ́ːrtər]
+4分の1 
+15分、25セント、四半期など | ◇quarterly 形 年4回の 名 季刊誌
+▶ the first <span>quarter</span> of this century
+今世紀の最初の<span>4分の1</span>
+0231
+furniture
+[fə́ːrnitʃər]
+家具
+◇furnish 動 <家具など>を備えつける | ◆cupboard 名 [kʌ́bərd] 食器棚 ★pは黙字。 | ◇closet 名 押し入れ、戸棚 | Q The room has few furnitures. はどこがいけない？ A furnitureは不可算名詞で、複数形がなくmany, fewもつかない。little furnitureが○。数えるにはa piece/pieces of をつける。
+▶ a room with little <span>furniture</span>
+<span>家具</span>の少ない部屋
+0232
+brain
+[bréin]
+脳
+頭脳；ブレーン、(集団での)知的指導者 | ◇brainstorm 動 自発的議論で案を出し合う、ブレインストーミングする
+▶ the human <span>brain</span>
+人間の<span>脳</span>
+0233
+atmosphere
+[ǽtməsfìər]
+大気、雰囲気
+空気 | ◇atmosphéric 形 大気の
+▶ CO₂ in the earth's <span>atmosphere</span>
+地球の<span>大気</span>中の二酸化炭素
+0234
+property
+[prɑ́pərti]
+財産
+資産、(物質の持つ科学的な)特性
+▶ private <span>property</span>
+私有<span>財産</span>
+0235
+reward
+[riwɔ́ːrd]
+報酬、〜に報いる(動詞)
+ほうび、懸賞金(+ for) | ◆reward A with B 「AにBで報いる」 | ◇rewarding 形 やりがいのある
+▶ a <span>reward for</span> hard work
+努力の<span>報酬</span>
+0236
+security
+[sikjúərəti]
+安全
+防衛、警備 | ◇secure 形 安全な、しっかりした 動 〜を確保する；〜を守る | ◆social security 「社会保障」
+▶ national <span>security</span>
+国家の<span>安全</span>保障
+0237
+delight
+[diláit]
+大喜び
+喜ばしいもの 動 〜を喜ばせる；喜ぶ(+ in) | ◇delighted 形 <人が>喜んでいる | ◇delightful 形 <人を>楽しませる | Q delightfulとdelightedの違いは？ A ↑(例) a delightful holiday「楽しい休日」 | delighted eyes「うれしそうな目」
+▶ give a cry of <span>delight</span>
+喜びの<span>声</span>をあげる
+0238
+desert
+[dézərt]
+砂漠
+動 〜を放棄する、見捨てる | ◇deserted 形 ひっそりした、人影がない | Q dessertと発音と意味は？  A [dizə́ːrt]デザート
+▶ a <span>deserted</span> road in the <span>desert</span>
+<span>砂漠</span>の<span>人影のない</span>道
+0239
+background
+[bǽkgràund]
+背景、生い立ち、経歴
+(例) background to events「できごとの背景」
+▶ people from different <span>backgrounds</span>
+<span>経歴</span>の違う人々
+0240
+trend
+[trénd]
+傾向
+風潮、流行 | ◇trendy 形 最新流行の
+▶ a <span>trend toward</span> fewer children
+少子化の<span>傾向</span>
+0241
+vote
+[vóut]
+投票
+選挙権 動 投票する | ◆vote for A 「Aに賛成の投票をする」
+▶ get 20% of the <span>vote</span>
+20％の<span>票</span>を得る
+0242
+impact
+[ímpækt]
+影響、衝撃
+効果(= effect)、衝突 | ◆have an impact on A 「Aに影響を与える」
+▶ a negative <span>impact on</span> the environment
+環境に対する悪い<span>影響</span>
+0243
+institution
+[ìnstətjúːʃən]
+機関、制度
+組織、施設(大学・病院など) 、慣習 | ◆social institutions 「社会的制度」 | ◇institute 名 研究所 動 (制度)を設ける
+▶ educational <span>institution</span>s
+教育<span>機関</span>
+0244
+interaction
+[ìntərǽkʃən]
+交流
+①(人と人の)交流、やりとり(= communication) ②相互作用 | ◇interact 動 (人と)交流する、つきあう；影響しあう | ◇interactive 形 (メディアが)双方向の、対話式の
+▶ social <span>interaction with</span> others
+他人との社会的<span>交流</span>
+0245
+alternative
+[ɔːltə́ːrnətiv]
+代わりのもの
+選択肢(+ to) | 形 代わりになる、選択可能な、2つに1つの | ◇alternate 動 (2つのことを)交互にする 形 交互の
+▶ an <span>alternative to</span> oil
+石油の<span>代わりになるもの</span>
+0246
+harm
+[hɑ́ːrm]
+害、危害
+動 〜に害を与える、危害を加える | ◆do harm to A 「Aに害を与える」= do A harm | ◇harmful 形 有害な | ◇harmless 形 無害な | ◇damage 名 損害 動 〜に損害を与える | ★damageは人への危害には用いない。
+▶ <span>do</span> no <span>harm to</span> children
+子供に<span>害</span>を与えない
+0247
+agency
+[éidʒənsi]
+機関、代理店
+(政府の)機関、局、作用(まれ)
+(例) the Central Intelligence Agency (アメリカの中央情報局) = CIA | ◇agent 名 ①業者、代理店(員) ②要因(②はまれ)
+▶ a travel <span>agency</span>
+旅行<span>代理店</span>
+0248
+capacity
+[kəpǽsəti]
+能力
+①能力(+ to V, for) ②(部屋などの)収容力、容積 | = ability ★主に潜在的な能力。
+▶ people's great <span>capacity</span> to learn
+人間のすばらしい学習<span>能力</span>
+0249
+minister
+[mínistər]
+大臣、牧師
+◇ministry 名 (政府の)省 | (例) the Defence Ministry「国防省」
+▶ the Italian <span>minister</span>
+イタリアの<span>大臣</span>
+0250
+volunteer
+[vɑ̀ləntíər]
+ボランティア
+志願者 動 〜を進んで申し出る | ◇voluntary 形 自発的な、志願の
+▶ a hospital <span>volunteer</span>
+病院で働く<span>ボランティア</span>
+`,
+            '251-300': `
+名詞
+0251
+access
+[ǽkses]
+利用する権利
+接近、入手(する方法) | ★約60％がtoを伴い、約20％がhaveを伴う。 | 動 (情報など)を利用する | ★ただし[æksés]という発音も存在する。 | ◆have access to A 「Aを利用できる」 | ◇accessible 形 行ける、利用できる
+▶ <span>have access to</span> the Internet
+インターネットを<span>利用</span>できる
+0252
+quantity
+[kwɑ́ntəti]
+量
+◆large quantities of A 「多量のA」 | ⇔quality 名 質
+▶ large <span>quantities of</span> data
+ぼう大な<span>量</span>のデータ
+0253
+branch
+[brǽntʃ]
+枝、支店、支局
+(学問の)部門、分野 | ◇bough 名 (大)枝 | ◇trunk 名 (木の)幹
+▶ a <span>branch of</span> science
+科学の<span>一分野</span>
+形容詞
+0254
+common
+[kɑ́mən]
+共通の、普通の
+公共の、ありふれた | ◆have A in common (with B)「(Bと)Aを共有する」 | ◆common sense 「常識(的判断力)」 | ◆the common people「一般大衆」 | ◇commonplace 形 ありふれた
+▶ a <span>common</span> language
+<span>共通の</span>言語
+0255
+rough
+[rʌ́f]
+荒い、大ざっぱな
+手荒い、大ざっぱな、つらい、厳しい | ⇔smooth 形 なめらかな
+▶ a <span>rough</span> sketch
+<span>大ざっぱな</span>スケッチ
+0256
+likely
+[láikli]
+ありそうな、〜する可能性が高い
+ 副 たぶん、おそらく | ◆be likely to V 「Vする可能性が高い」 | ◆It is likely that〜 「〜する可能性が高い」 | ◇likelihood 名 可能性、見込み
+▶ He <span>is likely to</span> win.
+彼が勝つ<span>可能性が高い</span>
+0257
+serious
+[síəriəs]
+深刻な
+重大な、真剣な、まじめな | ★「重病」は、serious illnessだ。heavy illnessとは言わない。
+▶ <span>serious</span> social problems
+<span>深刻な</span>社会問題
+0258
+particular
+[pərtíkjulər]
+ある特定の、特有の
+好みのやかましい(+ about) | ◆in particular 「特に(= particularly)」
+▶ a <span>particular</span> character
+<span>特有の</span>性質
+0259
+available
+[əvéiləbl]
+手に入る、利用できる
+①手に入る、利用できる ②(人が)手が空いている(= free) | ★①の意味では、上のフレーズのように名詞を後ろから修飾することも多い。 | ◆be available to A 「Aに利用できる」
+▶ information <span>available to</span> everyone
+みんなが<span>利用できる</span>情報
+0260
+bilingual
+[bailíŋgwəl]
+二言語使用の 
+名 二言語使用者 | ◇monolingual 形 一言語使用の | 名 一言語使用者 | ◇multilingual 形 多言語使用の | 名 多言語使用者
+▶ <span>bilingual</span> children
+<span>二言語使用の</span>子供たち
+0261
+ready
+[rédi]
+用意ができた
+(be ready to V)進んでVする | ◆get ready for A 「Aの用意をする」 | ◇readily 副 潔く、進んで；容易に | ◇ready-made 形 できあいの、既製の
+▶ I <span>am ready to</span> start.
+出発の<span>用意がができている</span>
+0262
+correct
+[kərékt]
+正しい
+適切な(= right) | 動 〜を訂正する | ⇔incorrect 形 まちがった(= wrong)
+▶ the <span>correct</span> answer
+<span>正しい</span>答え
+0263
+familiar
+[fəmíljər]
+よく知られた、くわしい
+①(人が)熟知している、くわしい ②よく知られた、見覚えのある、親しい | ◆A be familiar with B「A(人)がBをよく知っている」 | ◆B be familiar to A「BがA(人)によく知られている」 | ◇familiarity 名 親しい関係、熟知
+▶ be <span>familiar with</span> Japanese culture
+日本の文化に<span>くわしい</span>
+0264
+physical
+[fízikəl]
+身体の、肉体の、物理的な
+①身体の、肉体の(⇔spiritual) ②物理的な；物質の
+◇physics 名 物理学 | ◇physicist 名 物理学者
+▶ <span>physical</span> beauty
+<span>肉体</span>美
+0265
+worth
+[wə́ːrθ]
+の価値がある
+(be worth A) Aの価値がある | (be worth Ving) Vする価値がある 名 価値 | ◆be worth (A's) while 「(人が)時間[労力]をかける価値がある」 | ◆be worthy of A 「Aの価値がある」 
+▶ The book is <span>worth</span> read<span>ing</span>.
+その本は読む<span>価値がある</span>
+0266
+involved
+[invɑ́lvd]
+～に関係している、参加している
+(be involved in A) Aに関係している | ★次のように名詞を後ろから修飾することが多い。 | (例) the people involved「関係する人々」 | ◇involve 動 〜を伴う、含む；～を巻き込む、関係させる| ◇involvement 名 かかわり合い、関与
+▶ be <span>involved in</span> the accident
+事故に<span>巻き込まれている</span>
+0267
+fantastic
+[fæntǽstik]
+すばらしい
+空想の(= unreal) | ◇fantasy 名 幻想
+▶ I had a <span>fantastic</span> time.
+私は<span>すばらしい</span>時をすごした
+0268
+private
+[práivət]
+個人の、私的な
+私有の、秘密の | ⇔public 形 公の、公的な | ◆private school 「私立学校」 | ◆in private 「内密に、非公式に」 | ◇privacy 名 プライバシー、秘密
+▶ her <span>private</span> life
+彼女の<span>私</span>生活
+0269
+obvious
+[ɑ́bviəs]
+明白な 
+★It is obvious that 〜も多い。 | ◇obviously 副 明らかに
+▶ an <span>obvious</span> mistake
+<span>明白な</span>まちがい
+0270
+native
+[néitiv]
+母国の
+原住地の；生まれ故郷の | 名 (ある土地の)生まれの人 | ◆Native American 「アメリカ先住民」
+▶ a <span>native</span> language
+<span>母</span>語
+0271
+complex
+[kɑ́mpleks]
+複雑な
+①建物の集合体 ②強迫観念 | ◇complexity 名 複雑さ
+▶ a <span>complex</span> system
+<span>複雑な</span>システム
+0272
+willing
+[wíliŋ]
+～する気がある、してもかまわない
+①(be willing to V) Vする気がある、Vしてもかまわない ②積極的な、自発的な | ★②は名詞を修飾して。 | ★①のwillingは必要や要望があればするという意味。be ready to V は準備ができていてという意味。 | ◇willingly 副 進んで、快く | ◇willingness 名 進んですること[気持ち]
+▶ <span>I'm willing to</span> pay for good food.
+おいしいものにお金を使っ<span>てもかまわない</span>
+0273
+current
+[kə́ːrənt]
+最新の
+現時点の；広く世に行われる | 名 流れ、風潮 (例) electric current「電流」 | ◆current events「時事問題」 | ◇currency 名 通貨
+▶ the <span>current</span> international situation
+<span>今日の</span>国際状況
+0274
+male
+[méil]
+男の
+雄の 名 男、雄 | ⇔female 形 女の、雌の 名 女、雌
+▶ <span>male</span> workers
+<span>男性の</span>労働者
+0275
+proper
+[prɑ́pər]
+適切な
+ふさわしい；礼儀正しい | ⇔improper 形 ふさわしくない、無作法な
+▶ the <span>proper</span> use of words
+言葉の<span>適切な</span>使い方
+0276
+capable
+[kéipəbl]
+〜する能力がある
+〜する可能性がある、有能な | ◆be capable of Ving 「Vする能力[可能性]がある」 | ⇔incapable 形 能力[可能性]がない。 | ◇capability 名 能力 | Q He is capable ( ) this case. ①of handling ②to handle  A ①「彼はこの件を処理できる」
+▶ He is <span>capable of</span> doing the job.
+彼はその仕事を<span>する能力がある</span>
+0277
+independent
+[ìndipéndənt]
+独立した
+(⇔dependent) | ◆be independent of A 「Aから独立している」 | ◇independence 名 独立(+ from) | (例) the independence of America from Britain 「アメリカのイギリスからの独立」
+▶ He is <span>independent of</span> his parents.
+彼は親から<span>独立している</span>
+0278
+positive
+[pɑ́zətiv]
+積極的な
+前向きの；肯定的な、明確な；(人が)確信している(= sure) | ⇔negative 形 否定の；消極的な | ◇positively 副 確かに、きっぱりと
+▶ <span>positive</span> thinking
+<span>積極的な</span>考え方
+0279
+pleasant
+[pléznt]
+楽しい
+愉快な、心地よい | ◇pleased 形 (人が)喜んでいる；満足している | ◇please 動 〜を喜ばす、〜を満足させる | ◇pleasure 名 喜び、楽しみ | Q「I'm ( ) with my new house.」 ①pleased ②pleasant  A ②「私は新しい家が気にいている」 cf. My new house is pleasant to live in.「私の新しい家は住み心地がよい」
+▶ a <span>pleasant</span> experience
+<span>楽しい</span>経験
+0280
+significant
+[signífikənt]
+重要な
+意味のある、かなりの多くの | (例) a small but significant number「少数だがかなりの[無視できない]数」 | ◇significance 名 重要性、意味 | ◇signify 動 ～を示す、意味する
+▶ a <span>significant</span> difference
+<span>重要な</span>違い
+0281
+former
+[fɔ́ːrmər]
+前の
+昔の | 名 (the former)前者(⇔the latter「後者」) | ◇formerly 副 以前は、昔は
+▶ the <span>former</span> president
+<span>前</span>大統領
+0282
+chemical
+[kémikəl]
+化学的な 
+名 化学物質 | ◇chemistry 名 化学；(化学的な)性質 | ◇chemist 名 化学者
+▶ a <span>chemical</span> reaction
+<span>化学</span>反応
+0283
+upset
+[ʌpsét]
+動揺している
+取り乱している | 動 ①(人)の心を乱す ②(計画など)を駄目にする
+▶ be <span>upset</span> by the accident
+事故で<span>動揺している</span>
+0284
+previous
+[príːviəs]
+前の、以前の
+⇔following 形 次の、下記の | ◇previously 副 以前に、前もって | ★the previous nightは「(ある日の)前日の夜」のことで、last night「昨夜」とは違う。
+▶ from the <span>previous</span> year
+<span>前の</span>年から
+0285
+calm
+[kɑ́ːm]
+冷静な、静かな 
+動 〜を静める 名 静けさ、落ち着き
+▶ keep <span>calm</span>
+<span>冷静で</span>いる
+0286
+specific
+[spisífik]
+特定の
+特有の、明確な、具体的な | ◇specifically 副 特に、明確に；正確に言えば | ①⇔general 形 一般的な
+▶ a <span>specific</span> individual
+<span>特定の</span>個人
+0287
+conscious
+[kɑ́nʃəs]
+意識している
+意識的な  | ★A-consciousの形が多い。 | (例) class-conscious「階級意識がある」 | fashion-conscious「流行を気にする」 | = aware | ◆be conscious of A「Aを意識している」 | ◇self-conscious 形 恥ずかしがる、人の目を気にする
+▶ health-<span>conscious</span> Americans
+健康を<span>意識する</span>アメリカ人
+0288
+superior
+[supíəriər]
+よりすぐれている
+まさっている | 名 上役、上司 | ⇔inferior 形 より劣っている | ◆be superior to A「Aよりすぐれている」 | ◇superiority 名 優越、優勢
+▶ be <span>superior to</span> others
+他の人より<span>すぐれている</span>
+0289
+efficient
+[ifíʃənt]
+効率がいい
+能率的な；<人が>有能な | ★語尾-ient, -ienceはその直前の母音にアクセント。
+◇efficiency 名 能率
+▶ an <span>efficient</span> use of energy
+<span>効率のよい</span>エネルギーの使い方
+0290
+fundamental
+[fʌ̀ndəméntl]
+基本的な
+初歩の；根本的な | 名 (～s)基本事項、原則
+▶ <span>fundamental</span> human rights
+<span>基本的</span>人権
+0291
+narrow
+[nǽrou]
+狭い
+細い(⇔broad; wide) 動 〜を狭くする | (例) a narrow escape「かろうじて逃れること」 | ◇nárowly 副 ①かろうじて、危うく(= barely) ②狭く
+Q「狭い部屋」は？ A a small room「面積が狭い」はsmallを用いる。narrowは川道など細長いものについて言う。
+▶ a <span>narrow</span> street
+<span>狭い</span>通り
+0292
+reasonable
+[ríːzənəbl]
+理にかなった、手ごろな
+適切な、安い | (例) at reasonable prices「手ごろな価格で」
+▶ a <span>reasonable</span> explanation
+<span>理にかなった</span>説明
+0293
+nervous
+[nə́ːrvəs]
+神経質な、不安な
+神経の | ◇nerve 名 ①神経 ②勇気、ずうずうしさ
+◆get on A's nerves 「Aの神経にさわる」
+◆(the) nervous system 「神経系(統)」
+▶ feel <span>nervous</span> about the future
+将来のことで<span>不安に</span>になる
+0294
+alike
+[əláik]
+似ている
+同様な 副 同様に | ★Alex looks like Jim. = Alex and Jim look alike. | ◆A and B alike 「AもBも同様に」 | ◇likewise 副 同様に(= similarly)
+▶ The brothers look <span>alike</span>.
+その兄弟は<span>似ている</span>
+0295
+domestic
+[dəméstik]
+家庭の、国内の
+家庭的な、国内の(⇔foreign)
+(例) a domestic animal「家畜」 (例) the domestic market「国内市場」 | ◇domesticated 形 飼いならされた
+▶ <span>domestic</span> violence
+<span>家庭内</span>暴力
+0296
+negative
+[négətiv]
+否定の
+拒否の、消極的な | ⇔pósitive 「肯定的な；積極的な」 ▶p. 55
+▶ a <span>negative</span> answer
+<span>否定的な</span>答え
+0297
+moral
+[mɔ́(ː)rəl]
+道徳的な
+道徳の | 名 (～s；複数扱い)道徳 | ◇morality 名 道徳(性) 
+▶ make a <span>moral</span> judgment
+<span>道徳的な</span>判断をする
+0298
+eager
+[íːgər]
+熱望している
+熱心な | ◆be eager to V 「強くVしたがる」★6割以上がこの形。
+◇éagerly 副 熱心に
+▶ be <span>eager to</span> study in the US
+アメリカ留学を<span>熱望する</span>
+0299
+remarkable
+[rimɑ́ːrkəbl]
+すばらしい
+すぐれた、注目すべき | ◇remárk 動 〜と述べる、言う ▶p. 28
+◇remárkably 副 著しく、目立って；珍しく
+▶ the brain's <span>remarkable</span> ability
+脳の<span>すばらしい</span>能力
+0300
+evil
+[íːvəl]
+悪い
+邪悪な 名 悪、悪事 | ▶ drive away <span>evil</span> spirits
+<span>悪い</span>霊を追い払う
+`,
+            '301-350': `
+形容詞
+0301
+awake
+[əwéik]
+目を覚まして
+(⇔asleep) | 動 目覚める；〜を目覚めさせる(= wake) (awake; awoke; awoken) | ★awake, asleepは名詞の前に置かない。補語として用いる。 | ◇awáken 動 〜を目覚めさせる；目覚める
+▶ stay <span>awake</span> all night
+夜通し<span>目が覚めて</span>いる
+0302
+aged
+[éidʒid]
+年老いた、
+老齢の(= very old)、〜歳の | (例) people aged 65 and over「65歳以上の人」 | ◆the aged 「高齢者」 | ◇age 名 年齢；時代 動 年老いる | ◆aging population 「高齢人口」 | ◆aging society 「高齢化社会」
+▶ his <span>aged</span> parents
+彼の<span>年老いた</span>父母
+0303
+anxious
+[ǽŋkʃəs]
+心配して、切望して
+不安な | ◆be anxious about A「Aを心配している」 =be worried about A | ◆be anxious to V「Vすることを切望する」 =be eager to V | ◇anxiety 名 心配、不安 | Q He is anxious to find a girlfriend. の意味は？ A「彼は恋人を見つけたいと切望している」
+▶ I am <span>anxious about</span> your health.
+君の健康が<span>心配だ</span>
+0304
+tough
+[tʌ́f]
+たくましい
+骨の折れる、難しい、厳しい
+▶ a <span>tough</span> boxer
+<span>たくましい</span>ボクサー
+0305
+nuclear
+[njúːkliər]
+核の、原子力の
+◆nuclear weapon 「核兵器」 | ◆nuclear family 「核家族」 | ◆nuclear power plant「原子力発電所」 | ◆nuclear reactor 「原子炉」
+▶ <span>nuclear</span> energy
+<span>原子力</span>エネルギー
+0306
+legal
+[líːgəl]
+合法の、法律の
+法的な | ⇔illégal 形 違法の
+▶ the British <span>legal</span> system
+イギリスの<span>法律の</span>制度
+0307
+curious
+[kjúəriəs]
+好奇心が強い
+知りたがる(+ about)、奇妙な | ◇curiósity 名 好奇心；珍奇なもの
+▶ be <span>curious about</span> everything
+何にでも<span>好奇心を持つ</span>
+0308
+civil
+[sívl]
+一般市民の
+国内の | ◆the Civil War 「南北戦争」 | ◆civil war 「内戦」 | ◆the civil rights movement「(黒人の)公民権運動」 | ◇civilian 名 (軍人に対して)民間人
+▶ <span>civil</span> rights
+<span>市民</span>権
+0309
+recent
+[ríːsnt]
+最近の
+近ごろの | ◇récently 副 最近、先ごろ | ◇nówadays 副 近ごろ、今日では | ★nowadaysは現在形と用いる。現在完了形とはめったに用いない。 | Q I often see him recently.の誤りは？ A recentlyは、過去形か現在完了形の文に用い、現在形の文は不可。these days「最近」は、現在・現在完了形の文に用いる。
+▶ according to a <span>recent</span> study
+<span>最近の</span>研究によると
+0310
+senior
+[síːnjər]
+上級の；先輩の
+名 (高校・大学の)最上級生、上役 | ◆senior citizens 「高齢者、お年寄り」= seniors | ⇔júnior 形 後輩の、<地位が>下級の | ★be senior to A「Aよりも年上だ」は、実際にはめったに使われない。名詞のseniorで「年上の人」はあるが、まれ。
+▶ a <span>senior</span> member of the club
+クラブの<span>先輩の</span>部員
+副詞・その他
+0311
+afterward
+[ǽftərwərd]
+その後
+のちに | ★<英>はafterwards。アメリカ英語でも〜sは多く、入試では60％程度が〜sだ。
+▶ Soon <span>afterward</span>, he left.
+<span>その後</span>すぐ彼は去った
+0312
+nearly
+[níərli]
+ほとんど
+ほぼ(= almost)、危うく〜しかける | ◆not nearly 「まったく・・・ない」= not at all | ◇néarby 副 形 近くに；近くの | ★nearlyはalmostと同様、ある状態にまだ達していないことを意味する。たとえば、nearly 60もalmost 60も、60より少ないことを表す。 | Q He nearly fell into the river. の意味は？ A「彼は危うく川に落ちそうだった」= He almost fell into the river.
+▶ <span>nearly</span> 30 years ago
+30年<span>近く</span>前に
+0313
+therefore
+[ðέərfɔ̀ːr]
+それゆえに
+従って(= and so) | ★thusの方が堅く、soの方がくだけた表現。
+▶ The car is small and <span>therefore</span> cheap.
+その車は小さい。<span>それゆえ</span>安い。
+0314
+exactly
+[igzǽktli]
+正確に
+完全に；(強い肯定の答)全くそのとおりです | ★Not exactly.は「ちょっと違います」。 | ◇exáct 形 正確な
+▶ at <span>exactly the same</span> time
+<span>ぴったり</span>同時に
+0315
+possibly
+[pɑ́səbli]
+ひょっとすると
+(cannot possibly V)どうしてもVできない | ◇póssible 形 可能な | ◇possibility 名 可能性 | Q He can't possibly come. の意味は？ A「彼はどうしても来られない」 cf. He possibly can't come. は「ひょっとすると彼は来られないかもしれない」
+▶ He will <span>possibly</span> come.
+<span>ひょっとすると</span>彼は来るかもしれない
+0316
+contrary
+[kɑ́ntreri]
+反対に
+逆に 形 反対の | ◆on the contrary「それどころか；とんでもない」 | (例) I didn't find the movie exciting. On the contrary, I nearly fell asleep. 「その映画はおもしろくなかった。それどころか、寝そうになった」 | ◆contrary to A「Aに反して」 | ◆to the contrary「逆の[に]」
+▶ <span>contrary to</span> expectations
+予想に<span>反して</span>
+0317
+occasionally
+[əkéiʒənəli]
+時々
+たまに(= on occasion) | ★sometimesより低い頻度を示す。 | ◇occasiónal 形 時々の、時折の
+▶ I <span>occasionally</span> go to the theater.
+私は<span>たまに</span>劇場に行く
+0318
+somehow
+[sʌ́mhau]
+どういうわけか、なぜか
+何とかして、何らかの方法で | ▶ <span>Somehow</span> I feel lonely.
+<span>なぜか</span>寂しい
+0319
+seldom
+[séldəm]
+めったに〜ない
+(= hardly ever) | ★助動詞またはbe動詞がある場合はその直後にseldomを置く。(例) This is seldom used.「これはめったに使われない」
+▶ I <span>seldom</span> see him.
+彼に会うことは<span>めったにない</span>
+0320
+thus
+[ðʌ́s]
+それゆえ、そのように
+したがって(= therefore) ★後ろに結果が来る。 このように(= in this way) 、これほど、この程度 | ★thus = soと考えればどの意味もわかる。
+▶ This is smaller and <span>thus</span> cheaper.
+この方が小さく、<span>したがって</span>安い
+0321
+throughout
+[θru(ː)áut]
+いたる所に
+<時間>を通して、〜の間中 | 副 始めから終わりまで、ずっと、まったく
+▶ people <span>throughout</span> the world
+世界<span>中</span>の人々
+0322
+unlike
+[ʌ̀nláik]
+〜と違って
+〜に似ず | ★unlikeの後にinなどの前置詞が来ることもある。(例) unlike in Japan「日本でとは異なり」
+▶ <span>Unlike</span> my wife, I get up early.
+妻<span>と違って</span>私は早起きだ
+0323
+besides
+[bisáidz]
+〜に加えて
+〜の上に(= in addition to) | 副 その上に ★beside「〜の横に」と混同しないように！
+▶ <span>Besides</span> being rich, he is kind.
+彼は金持ち<span>の上に</span>やさしい
+0324
+beyond
+[bijɑ́nd]
+～をこえて
+前 〜の向こうに、〜できる範囲をこえて | ◆(be) beyond A's control「Aにはどうすることもできない」 | ◆(be) beyond the reach of A「Aがとどかない」 | ◆beyond doubt「疑う余地なく」
+▶ It's <span>beyond</span> my understanding.
+私の理解を<span>こえて</span>いる
+0325
+within
+[wiðín]
+以内で
+〜の内部に；〜の範囲内で | ◆from within (A)「(Aの)内部から」 | ◆within A of B「BからA以内で」 | ★普通のofの代わりにfromは用いない。
+▶ <span>within</span> a mile <span>of</span> the station
+駅からの1マイル<span>以内で</span>
+0326
+nor
+[nɔ́ːr]
+～もない
+接 ①(neither, noなど否定語の後で)〜もない ②〜もまた(…し)ない(= neither) | ★否定語の後のorはnorと同じ意味。また対句的名詞は無冠詞となることがある。(例) have no brother or sister | ★②はnor + (助)動詞 + 主語の語順。(例) I don't smoke, nor does she.「私はタバコは吸わないし、彼女も吸わない」
+▶ have <span>neither</span> time <span>nor</span> money
+時間もお金<span>もない</span>
+0327
+unless
+[ənlés]
+〜しない限り
+〜する場合を除いて | ★if ... notに近いが、unlessは唯一例外の条件を表すのでexcept if より近い。(例) I'll be surprised if he doesn't come.「彼が来ないとしたら驚くだろう」| 上の例で〜unless he comesとしてははいけない。もしそうすると「彼が来る場合を除いて私は驚く」という意味になりおかしい。
+▶ I'll leave tomorrow <span>unless</span> it rains.
+明日雨が降ら<span>ない限り</span>出発する
+0328
+except
+[iksépt]
+〜を除いて
+〜以外は | ★普通all, every, noなどとともに使う。文頭には普通置かない。 | ◆except for A「Aを除けば、Aがあることを除けば」 | ★except forは文全体に対する「ただし書き」的に用いる。(例) The project went very well, except for a few problems.「いくつか問題はあったが、その計画はうまく行った」 | ⇔besídes 前 〜に加えて 副 その上に
+▶ work <span>every</span> day <span>except</span> Sunday
+日曜<span>以外</span>毎日働く
+0329
+ought
+[ɔ́ːt]
+～すべき
+助 (+ to V) <人は>Vすべきである | (ought to have Ved) Vすべきだったのにしなかった | ★否定形はought not to Vだ。
+▶ You <span>ought to</span> see a doctor.
+君は医者に診てもらう<span>べきだ</span>
+0330
+in spite of
+[spáit]
+〜にもかかわらず
+★ほとんどこの形で使い、in spite ofで1つの前置詞と考えてよい。
+▶ <span>in spite of</span> difficulties
+困難<span>にもかかわらず</span>
+0331
+whether
+[hwéðər]
+～かどうか、～であろうと
+接 ①(名詞節を導いて)〜かどうか ★whether + to V も可。 ②(副詞節を導いて)〜であろうと(なかろうと) | ★副詞節の時はwhether節中でor〜やor notが必ずつく。名詞節の時はor〜があってもなくてもよい。| ★whether or not〜とすることもある。(例) The sun rises whether we look at it or not. = The sun rises whether or not we look at it. 「私たちが見ようと見まいと陽は昇る」
+▶ I don't know <span>whether</span> it is true <span>or not</span>.
+本当か<span>どうか</span>わからない
+動詞
+0332
+explain
+[ikspléin]
+を説明する
+★why, howなど疑問詞をよく伴う。 | ◇explanation 名 説明 | Q Explain me the answer. はなぜ誤り？ A explainはSVOOの文型がない。Explain the answer to me. が正しい。
+▶ <span>explain why</span> he was late
+彼がなぜ遅れたか<span>を説明する</span>
+0333
+accept
+[əksépt]
+を受け入れる
+⇔rejéct, refúse 動 〜を断る | ◇accéptable 形 容認できる | ◇accéptance 名 受け入れ、容認 | Q receive an invitationとaccept an invitationはどう違う？ A receiveだと単に「招待状をもらう」の意味。acceptでは「招待を受け入れる」の意味になる。
+▶ <span>accept</span> the truth as it is
+ありのまま真実<span>を受け入れる</span>
+0334
+produce
+[prədjúːs]
+を生産する
+〜を作る 名 農産物 | ◇próduct 名 製品 | ◇prodúction 名 生産(高) | ◇prodúctive 形 生産的な | ◇productívity 名 生産性 | ◇by-product 名 副産物
+▶ <span>produce</span> enough food
+十分な食料<span>を生産する</span>
+0335
+exist
+[igzíst]
+存在する
+◇existence 名 存在；生存、生活(= life) | ◇exísting 形 今ある、現存する | ◇coexíst 動 共存する | Q lead a happy existenceの意味は？ A「幸福な生活を送る」
+▶ Does God really <span>exist</span>?
+神は本当に<span>存在する</span>のか
+0336
+express
+[iksprés]
+を表現する
+名 急行 | ◇expréssion 名 表現；表情 | ◇expréssive 形 表現力に富む
+▶ <span>express</span> my feelings
+私の気持ち<span>を表現する</span>
+0337
+add ... to
+[ǽd]
+を加える
+<言葉>つけ加える | ◆add A to B 「AをBに増やす」 = increase | ◆add up to A 「合計Aになる」 | ◇addition 名 追加、増加；足し算 | ◆in addition (to A) 「(Aに)加えて、その上」
+▶ <span>add</span> some milk <span>to</span> the soup
+スープにミルク<span>を加える</span>
+0338
+avoid ... ing 
+[əvɔ́id]
+を避ける
+◇unavóidable 形 避けられない | Q 動詞を目的語にとるときはどんな形？ A avoid + Ving ★頻出！
+▶ <span>avoid</span> mak<span>ing</span> mistakes
+まちがいを犯すの<span>を避ける</span>
+0339
+marry
+[mǽri]
+と結婚する
+◇márriage 名 結婚 | ◇márried 形 結婚している、既婚の | ◆be married (to A) 「(Aと)結婚している」★状態を表す | ◆get married (to A) 「(Aと)結婚する」(= +A) | Q1 Will you ( ) me ? ①marry ②marry with A1 ① marryは、「<人>と結婚する」という意味では、他動詞。 | Q2 He got married ( ) Mary. A2 to (↑)
+▶ <span>marry</span> Mary
+メアリ<span>と結婚する</span>
+0340
+protect ... from 
+[prətékt]
+を守る
+◇protéctive 形 保護の、保護用の | ◇protéction 名 保護
+▶ <span>protect</span> children <span>from</span> danger
+危険から子供たち<span>を守る</span>
+0341
+affect
+[əfékt]
+に影響する
+(= influence)；〜に作用する
+▶ Alcohol <span>affect</span>s the brain.
+アルコールは脳<span>に影響する</span>
+0342
+determine
+[ditə́ːrmin]
+を決定する
+決心する (= decide) | ◆be determined to V 「Vすることを決意している」 | ◇determinátion 名 決心、決定
+▶ <span>determine</span> your future
+君の未来<span>を決定する</span>
+0343
+solve
+[sɑ́lv]
+を解決する
+◇solútion 名 ①解決(策)、解答 ②溶解、溶液
+▶ <span>solve</span> the problem
+問題<span>を解決する</span>
+0344
+contain
+[kəntéin]
+を含んでいる
+★「(SにはO)が入っている」と訳せる。 | ◇contáiner 名 容器
+▶ Vegetables <span>contain</span> a lot of water.
+野菜はたくさんの水<span>を含んでいる</span>
+0345
+discuss
+[diskʌ́s]
+を議論する
+(= talk about) | ★argueは自分の意見を主張することで、discussは違った意見を出し合って話し合うこと。 | ◇discússion 名 討論、議論 | Q Let's discuss about the matter.の間違いは？ A discussは他動詞。前置詞は不要。Let's discuss the matter.が正しい。
+▶ <span>discuss</span> the problem with him
+彼とその問題<span>を議論する</span>
+0346
+ignore
+[ignɔ́ːr]
+を無視する
+▶ <span>ignore</span> the doctor's advice
+医者の忠告<span>を無視する</span>
+0347
+guess
+[gés]
+を推測する
+〜と考える(= suppose) 名 推測
+▶ <span>guess</span> how old she is
+彼女の年<span>を推測する</span>
+0348
+exchange ... for
+[ikstʃéindʒ]
+交換する
+◆exchange A for B 「AをBに交換する」
+▶ <span>exchange</span> yen <span>for</span> dollars
+円をドルに<span>交換する</span>
+0349
+satisfy
+[sǽtisfài]
+を満たす
+〜を満足させる | ◆be satisfied with A 「<人が>Aに満足している」 | ◇satisfáction 名 満足 | ◇satisfáctory 形 (人ににとって)満足な、十分な | Q I'm ( ) with your work. ①satisfactory ②satisfied A ② 「私は君の仕事に満足している」cf. Your work is satisfactory to me.「君の仕事は、私には満足だ」
+▶ <span>satisfy</span> the needs of students
+学生の要求<span>を満たす</span>
+0350
+complain... about
+[kəmpléin]
+苦情を言う
+◆complain (to A) about [of] B 「(Aに) Bのことで不満を言う」 | ◇compláint 名 不満、苦情
+▶ <span>complain about</span> the noise
+騒音のことで<span>苦情を言う</span>
+`,
+        };
+        const STATUS_NOT_YET = "not_yet", STATUS_LEARNED = "learned", STATUS_PERFECT = "perfect", ALL_STATUSES = "all_statuses";
+        const LOCAL_STORAGE_KEY = 'flashcardUserData_v2_201-350';
+
+        // --- DOM Elements ---
+        const tabContainer = document.getElementById('tab-container');
+        const wordDisplayElement = document.getElementById('word-display');
+        const detailsDisplayElement = document.getElementById('details-display');
+        const posSpan = document.getElementById('pos-span');
+        const pronunciationSpan = document.getElementById('pronunciation-span');
+        const meaningSpan = document.getElementById('meaning-span');
+        const notesP = document.getElementById('notes-p');
+        const notesSpan = document.getElementById('notes-span');
+        const exampleEnP = document.getElementById('example-en-p');
+        const exampleEnSpan = document.getElementById('example-en-span');
+        const exampleJaP = document.getElementById('example-ja-p');
+        const exampleJaSpan = document.getElementById('example-ja-span');
+        const wordIdSpan = document.getElementById('word-id-span');
+        const flashcardArea = document.getElementById('flashcard-area');
+        const noWordsMessageElement = document.getElementById('no-words-message');
+        const flashcardElement = document.getElementById('flashcard');
+        const statusButtons = {
+            [STATUS_NOT_YET]: document.getElementById('status-btn-not-yet'),
+            [STATUS_LEARNED]: document.getElementById('status-btn-learned'),
+            [STATUS_PERFECT]: document.getElementById('status-btn-perfect')
+        };
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+        const progressIndicatorElement = document.getElementById('progress-indicator');
+        const statusMessageElement = document.getElementById('status-message');
+        const settingsToggleButton = document.getElementById('settings-toggle-button');
+        const settingsDropdownMenu = document.getElementById('settings-dropdown-menu');
+        const resetDataButton = document.getElementById('reset-data-button');
+        const randomModeCheckbox = document.getElementById('random-mode-checkbox');
+        const playAudioButton = document.getElementById('play-audio-button');
+        const statusFilterButtons = {
+            [ALL_STATUSES]: document.getElementById('status-filter-all'), [STATUS_NOT_YET]: document.getElementById('status-filter-not-yet'),
+            [STATUS_LEARNED]: document.getElementById('status-filter-learned'), [STATUS_PERFECT]: document.getElementById('status-filter-perfect')
+        };
+        const seekBar = document.getElementById('seek-bar');
+        
+        let allWordDataSets = {};
+        let currentFilteredAndShuffledWords = [];
+        let currentWordIndexInList = 0;
+        let showingMeaning = false;
+        let currentStatusFilter = ALL_STATUSES;
+        let isRandomMode = false;
+        let activeSelection = 'all'; // 'all' or an array of ranges e.g., ['201-250', '251-300']
+        
+        const synth = window.speechSynthesis;
+        let voices = [];
+
+        function populateVoiceList() { /* 省略 (変更なし) */ if(typeof speechSynthesis === 'undefined') { if (playAudioButton) playAudioButton.style.display = 'none'; return; } voices = synth.getVoices(); if (voices.length === 0 && synth.onvoiceschanged !== undefined) { synth.onvoiceschanged = populateVoiceList; } if (playAudioButton) { playAudioButton.style.display = (voices.length > 0 && !showingMeaning && currentFilteredAndShuffledWords.length > 0) ? 'block' : 'none'; } }
+        
+        function parseWordData(textData) {
+            const words = [];
+            const lines = textData.trim().split(/\r\n|\r|\n/);
+            let i = 0;
+            let currentPos = '';
+            const posHeaders = ['動詞', '名詞', '形容詞', '副詞', '接続詞', '前置詞', '代名詞', '副詞・その他'];
+
+            while (i < lines.length) {
+                let line = lines[i].trim();
+                if (!line) { i++; continue; }
+                if (posHeaders.includes(line)) { currentPos = line; i++; continue; }
+                
+                if (line.match(/^\d{4}$/)) {
+                    const wordData = {
+                        id: line,
+                        word: lines[i + 1] ? lines[i + 1].trim().replace(/⚠\S+\s*/g, '') : '',
+                        pronunciation: lines[i + 2] ? lines[i + 2].trim() : '',
+                        meaning: lines[i + 3] ? lines[i + 3].trim() : '',
+                        notes: '',
+                        exampleEn: '',
+                        exampleJa: '',
+                        pos: currentPos,
+                        status: STATUS_NOT_YET,
+                    };
+                    i += 4;
+
+                    while (i < lines.length && lines[i] && lines[i].trim() && !lines[i].trim().match(/^\d{4}$/) && !posHeaders.includes(lines[i].trim())) {
+                        let optLine = lines[i].trim();
+                        if (optLine.startsWith('★') || optLine.startsWith('◇') || optLine.startsWith('◆') || optLine.startsWith('＝') || optLine.startsWith('⇔') || optLine.startsWith('源') || optLine.startsWith('Q') || optLine.startsWith('A')) {
+                           if (wordData.notes) wordData.notes += ' | ' + optLine.trim();
+                           else wordData.notes = optLine.trim();
+                        } else if (optLine.startsWith('▶')) {
+                            wordData.exampleEn = optLine.substring(1).trim();
+                            if (i + 1 < lines.length && lines[i + 1] && lines[i + 1].trim() && !lines[i + 1].trim().match(/^\d{4}$/) && !/^[★◇◆＝⇔源▶QA]/.test(lines[i + 1].trim()) && !posHeaders.includes(lines[i+1].trim())) {
+                                i++;
+                                wordData.exampleJa = lines[i].trim();
+                            }
+                        } else { // Handle cases where notes are not prefixed
+                            if (wordData.notes) wordData.notes += ' | ' + optLine.trim();
+                            else wordData.notes = optLine.trim();
+                        }
+                        i++;
+                    }
+                    words.push(wordData);
+                } else {
+                    i++;
+                }
+            }
+            return words;
+        }
+
+        function loadDataFromLocalStorage() {
+            const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (savedData) {
+                try {
+                    let parsedData = JSON.parse(savedData);
+                    if (typeof parsedData === 'object' && parsedData !== null && !Array.isArray(parsedData) && Object.keys(wordDataSetsText).every(key => key in parsedData)) {
+                        allWordDataSets = parsedData;
+                        console.log("Loaded data from LocalStorage.");
+                        return;
+                    }
+                } catch (e) { console.error("localStorage読み込み失敗:", e); }
+            }
+            console.log("No valid data in LocalStorage, parsing text data.");
+            Object.keys(wordDataSetsText).forEach(range => {
+                allWordDataSets[range] = parseWordData(wordDataSetsText[range]);
+            });
+        }
+
+        function saveDataToLocalStorage() {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allWordDataSets));
+        }
+        
+        function getActiveRanges() {
+            if (activeSelection === 'all') {
+                return Object.keys(allWordDataSets).filter(key => allWordDataSets[key].length > 0);
+            }
+            return Array.isArray(activeSelection) ? activeSelection : [];
+        }
+        
+        function countWordsForFilters() {
+            const rangesToCount = getActiveRanges();
+            const statusCounts = { [ALL_STATUSES]: 0, [STATUS_NOT_YET]: 0, [STATUS_LEARNED]: 0, [STATUS_PERFECT]: 0 };
+
+            rangesToCount.forEach(range => {
+                const words = allWordDataSets[range] || [];
+                words.forEach(word => {
+                    if (statusCounts.hasOwnProperty(word.status)) statusCounts[word.status]++;
+                    statusCounts[ALL_STATUSES]++;
+                });
+            });
+            return { statusCounts };
+        }
+
+        function updateFilterButtonLabels() {
+            const { statusCounts } = countWordsForFilters();
+            Object.keys(statusFilterButtons).forEach(key => {
+                const button = statusFilterButtons[key]; if (!button) return;
+                const baseText = button.dataset.baseText || button.textContent.split(' (')[0];
+                button.dataset.baseText = baseText;
+                button.textContent = `${baseText} (${statusCounts[key] || 0})`;
+            });
+        }
+
+        function applyFiltersAndPrepareDisplayList() {
+            const rangesToDisplay = getActiveRanges();
+            let tempWords = [];
+            rangesToDisplay.forEach(range => {
+                tempWords.push(...(allWordDataSets[range] || []));
+            });
+
+            if (currentStatusFilter !== ALL_STATUSES) { tempWords = tempWords.filter(word => word.status === currentStatusFilter); }
+            
+            if (isRandomMode) {
+                if (seekBar) { seekBar.style.display = 'none'; seekBar.disabled = true; }
+                currentFilteredAndShuffledWords = [...tempWords].sort(() => Math.random() - 0.5);
+            } else {
+                if (seekBar) { seekBar.style.display = 'block'; seekBar.disabled = false; }
+                currentFilteredAndShuffledWords = [...tempWords];
+            }
+            currentWordIndexInList = 0; showingMeaning = false;
+            updateSeekBarRange(); updateCardDisplay(); updateActiveFilterButtonsUI(); updateFilterButtonLabels();
+        }
+        
+        function updateSeekBarRange() { /* 省略 (変更なし) */ if (!seekBar) return; if (currentFilteredAndShuffledWords.length > 0) { seekBar.max = currentFilteredAndShuffledWords.length - 1; seekBar.value = currentWordIndexInList; seekBar.disabled = isRandomMode; } else { seekBar.max = 0; seekBar.value = 0; seekBar.disabled = true; } }
+
+        function updateCardDisplay() {
+            if (currentFilteredAndShuffledWords.length === 0 || currentWordIndexInList < 0 || currentWordIndexInList >= currentFilteredAndShuffledWords.length) {
+                flashcardArea.classList.add('hidden'); noWordsMessageElement.classList.remove('hidden');
+                progressIndicatorElement.textContent = "0 / 0";
+                
+                if (getActiveRanges().length === 0) {
+                     noWordsMessageElement.textContent = "学習する範囲を選択してください。";
+                     statusMessageElement.textContent = "上のタブから学習範囲を選べます。";
+                } else {
+                    noWordsMessageElement.textContent = "この条件に一致する単語はありません。";
+                    statusMessageElement.textContent = "フィルター条件を変えてみてください。";
+                }
+
+                Object.values(statusButtons).forEach(btn => btn.disabled = true);
+                prevButton.disabled = true; nextButton.disabled = true;
+                playAudioButton.style.display = 'none'; seekBar.disabled = true; return;
+            }
+            flashcardArea.classList.remove('hidden'); noWordsMessageElement.classList.add('hidden');
+            Object.values(statusButtons).forEach(btn => btn.disabled = false);
+            prevButton.disabled = false; nextButton.disabled = false;
+
+            const currentWordObject = currentFilteredAndShuffledWords[currentWordIndexInList];
+            wordDisplayElement.textContent = currentWordObject.word; posSpan.textContent = currentWordObject.pos; pronunciationSpan.textContent = currentWordObject.pronunciation; meaningSpan.textContent = currentWordObject.meaning; wordIdSpan.textContent = currentWordObject.id;
+            if (currentWordObject.notes) { notesSpan.innerHTML = currentWordObject.notes.replace(/\|/g, '<br>'); notesP.classList.remove('hidden'); } else { notesP.classList.add('hidden'); }
+            
+            if (currentWordObject.exampleEn) {
+                exampleEnSpan.innerHTML = currentWordObject.exampleEn; // innerHTMLを使用してタグを解釈
+                exampleJaSpan.innerHTML = currentWordObject.exampleJa; // innerHTMLを使用してタグを解釈
+                exampleEnP.classList.remove('hidden'); 
+                exampleJaP.classList.remove('hidden');
+            } else {
+                exampleEnP.classList.add('hidden'); 
+                exampleJaP.classList.add('hidden'); 
+            }
+
+            if (showingMeaning) {
+                detailsDisplayElement.classList.remove('hidden'); wordDisplayElement.classList.add('hidden'); flashcardElement.classList.add('showing-meaning'); playAudioButton.style.display = 'none';
+            } else {
+                detailsDisplayElement.classList.add('hidden'); wordDisplayElement.classList.remove('hidden'); flashcardElement.classList.remove('showing-meaning'); playAudioButton.style.display = (typeof speechSynthesis !== 'undefined' && voices.length > 0) ? 'block' : 'none';
+            }
+            
+            Object.values(statusButtons).forEach(btn => btn.classList.remove('selected'));
+            if (statusButtons[currentWordObject.status]) { statusButtons[currentWordObject.status].classList.add('selected'); }
+            
+            let statusText = "";
+            switch (currentWordObject.status) { case STATUS_LEARNED: statusText = '「覚えた」'; break; case STATUS_PERFECT: statusText = '「完璧！」'; break; default: statusText = '「まだ」'; break; }
+            let baseMessage = `この単語は ${statusText} 状態です。`;
+            if (showingMeaning) { statusMessageElement.textContent = baseMessage + ' カードクリックで単語に戻ります。';
+            } else { statusMessageElement.textContent = baseMessage + ' カードクリックで詳細を表示。'; }
+            progressIndicatorElement.textContent = `${currentFilteredAndShuffledWords.length > 0 ? currentWordIndexInList + 1 : 0} / ${currentFilteredAndShuffledWords.length}`;
+            updateSeekBarRange();
+        }
+        
+        function updateActiveFilterButtonsUI() { /* 省略 (変更なし) */ Object.values(statusFilterButtons).forEach(btn => { if(btn) btn.classList.remove('active-status-filter'); }); if (statusFilterButtons[currentStatusFilter]) { statusFilterButtons[currentStatusFilter].classList.add('active-status-filter'); } }
+
+        function handleTabClick(range) {
+            const allButton = document.querySelector('.tab-button[data-range="all"]');
+            const clickedButton = document.querySelector(`.tab-button[data-range="${range}"]`);
+
+            if (range === 'all') {
+                activeSelection = 'all';
+            } else {
+                if (activeSelection === 'all') {
+                    activeSelection = [range];
+                } else {
+                    const index = activeSelection.indexOf(range);
+                    if (index > -1) {
+                        activeSelection.splice(index, 1);
+                    } else {
+                        activeSelection.push(range);
+                    }
+                }
+                // もし全ての個別タブが選択されたら 'all' と同じ状態にする
+                const allRanges = Object.keys(allWordDataSets).filter(key => allWordDataSets[key].length > 0);
+                if (activeSelection.length === allRanges.length) {
+                    activeSelection = 'all';
+                } else if (activeSelection.length === 0) {
+                     activeSelection = 'all'; // 選択がなくなったら 'all' に戻す
+                }
+            }
+            updateTabUI();
+            applyFiltersAndPrepareDisplayList();
+        }
+
+        function updateTabUI() {
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                const range = btn.dataset.range;
+                if (range === 'all') {
+                    btn.classList.toggle('active', activeSelection === 'all');
+                } else {
+                    btn.classList.toggle('active', Array.isArray(activeSelection) && activeSelection.includes(range));
+                }
+            });
+        }
+        
+        function setupTabs() {
+            tabContainer.innerHTML = ''; // Clear existing tabs
+            const allButton = document.createElement('button');
+            allButton.className = 'tab-button';
+            allButton.dataset.range = 'all';
+            const totalCount = Object.values(allWordDataSets).reduce((sum, words) => sum + (words ? words.length : 0), 0);
+            allButton.textContent = `全体 (${totalCount})`;
+            allButton.addEventListener('click', () => handleTabClick('all'));
+            tabContainer.appendChild(allButton);
+
+            const tabOrder = ['201-250', '251-300', '301-350'];
+            tabOrder.forEach(range => {
+                const button = document.createElement('button');
+                button.className = 'tab-button';
+                button.dataset.range = range;
+                const count = allWordDataSets[range] ? allWordDataSets[range].length : 0;
+                button.textContent = `${range} (${count})`;
+                if (count === 0) { // データがない場合は無効化
+                    button.disabled = true;
+                    button.style.cursor = 'not-allowed';
+                    button.style.opacity = '0.6';
+                }
+                button.addEventListener('click', () => handleTabClick(range));
+                tabContainer.appendChild(button);
+            });
+        }
+
+        // --- Event Listeners ---
+        flashcardElement.addEventListener('click', (event) => { /* 省略 (変更なし) */ if (playAudioButton && playAudioButton.contains(event.target)) { return; } if (currentFilteredAndShuffledWords.length === 0) return; showingMeaning = !showingMeaning; updateCardDisplay(); });
+        playAudioButton.addEventListener('click', (event) => { /* 省略 (変更なし) */ event.stopPropagation(); if (currentFilteredAndShuffledWords.length === 0 || showingMeaning) return; const currentWordObject = currentFilteredAndShuffledWords[currentWordIndexInList]; if (!currentWordObject || !currentWordObject.word) return; if (synth.speaking) { synth.cancel(); } const utterance = new SpeechSynthesisUtterance(currentWordObject.word); const englishVoice = voices.find(voice => voice.lang.startsWith('en-')); if (englishVoice) { utterance.voice = englishVoice; } else { utterance.lang = 'en-US'; } utterance.pitch = 1; utterance.rate = 0.9; utterance.onstart = () => { playAudioButton.classList.add('playing'); playAudioButton.disabled = true; }; utterance.onend = () => { playAudioButton.classList.remove('playing'); playAudioButton.disabled = false; }; utterance.onerror = (e) => { console.error('SpeechSynthesisUtterance.onerror', e); playAudioButton.classList.remove('playing'); playAudioButton.disabled = false; statusMessageElement.textContent = "音声の再生に失敗しました。"; }; synth.speak(utterance); });
+        
+        Object.values(statusButtons).forEach(button => {
+            button.addEventListener('click', (event) => {
+                if (currentFilteredAndShuffledWords.length === 0) return;
+                const newStatus = event.target.closest('button').dataset.status;
+                const currentWordObject = currentFilteredAndShuffledWords[currentWordIndexInList];
+                if (!currentWordObject) return;
+                
+                let originalWordInSet = null;
+                for (const range in allWordDataSets) {
+                    originalWordInSet = allWordDataSets[range].find(word => word.id === currentWordObject.id);
+                    if (originalWordInSet) {
+                        originalWordInSet.status = newStatus;
+                        break;
+                    }
+                }
+
+                if (originalWordInSet) {
+                    currentWordObject.status = newStatus; // currentFiltered...リスト内のオブジェクトも更新
+                    saveDataToLocalStorage();
+                    
+                    const shouldWordBeRemoved = (currentStatusFilter !== ALL_STATUSES && currentStatusFilter !== newStatus);
+                    
+                    updateFilterButtonLabels(); // カウントを先に更新
+                    updateCardDisplay(); // UI上のボタン選択状態などを即時反映
+                    
+                    let baseMessage = `「${currentWordObject.word}」を「${newStatus === STATUS_NOT_YET ? 'まだ' : newStatus === STATUS_LEARNED ? '覚えた' : '完璧！'}」にしました。`;
+                    
+                    if (shouldWordBeRemoved) {
+                        statusMessageElement.textContent = baseMessage + " フィルターによりリストから除外されます。";
+                        setTimeout(() => {
+                           applyFiltersAndPrepareDisplayList();
+                        }, 1200);
+                    } else {
+                        statusMessageElement.textContent = baseMessage;
+                    }
+                }
+            });
+        });
+        
+        prevButton.addEventListener('click', () => { /* 省略 (変更なし) */ if (currentFilteredAndShuffledWords.length === 0) return; if (currentWordIndexInList > 0) { currentWordIndexInList--; } else { currentWordIndexInList = currentFilteredAndShuffledWords.length - 1; } showingMeaning = false; synth.cancel(); updateCardDisplay(); });
+        nextButton.addEventListener('click', () => { /* 省略 (変更なし) */ if (currentFilteredAndShuffledWords.length === 0) return; if (currentWordIndexInList < currentFilteredAndShuffledWords.length - 1) { currentWordIndexInList++; } else { currentWordIndexInList = 0; } showingMeaning = false; synth.cancel(); updateCardDisplay(); });
+        seekBar.addEventListener('input', (event) => { /* 省略 (変更なし) */ if (currentFilteredAndShuffledWords.length > 0 && !isRandomMode) { currentWordIndexInList = parseInt(event.target.value, 10); showingMeaning = false; synth.cancel(); updateCardDisplay(); } });
+        Object.keys(statusFilterButtons).forEach(statusKey => { if(statusFilterButtons[statusKey]) statusFilterButtons[statusKey].addEventListener('click', () => { currentStatusFilter = statusKey; applyFiltersAndPrepareDisplayList(); }); });
+        randomModeCheckbox.addEventListener('change', (event) => { isRandomMode = event.target.checked; applyFiltersAndPrepareDisplayList(); statusMessageElement.textContent = `表示モードを「${isRandomMode ? 'ランダム' : '順番'}」に変更しました。`; });
+        settingsToggleButton.addEventListener('click', (event) => { /* 省略 (変更なし) */ event.stopPropagation(); settingsDropdownMenu.style.display = settingsDropdownMenu.style.display === 'block' ? 'none' : 'block'; });
+        document.body.addEventListener('click', (event) => { /* 省略 (変更なし) */ if (settingsDropdownMenu && settingsDropdownMenu.style.display === 'block' && !settingsDropdownMenu.contains(event.target) && !settingsToggleButton.contains(event.target)) { settingsDropdownMenu.style.display = 'none'; } });
+        
+        resetDataButton.addEventListener('click', () => {
+            if (confirm("本当に全ての学習記録をリセットしますか？この操作は取り消せません。")) {
+                localStorage.removeItem(LOCAL_STORAGE_KEY);
+                Object.keys(wordDataSetsText).forEach(range => {
+                    allWordDataSets[range] = parseWordData(wordDataSetsText[range]);
+                });
+                
+                setupTabs(); // Re-render tabs with correct counts
+                activeSelection = 'all';
+                updateTabUI();
+                applyFiltersAndPrepareDisplayList();
+
+                settingsDropdownMenu.style.display = 'none';
+                statusMessageElement.textContent = "全ての学習記録をリセットしました。";
+            }
+        });
+
+        // --- App Initialization ---
+        function initializeApp() {
+            populateVoiceList();
+            loadDataFromLocalStorage();
+            setupTabs();
+            // 初期状態を設定
+            activeSelection = 'all';
+            currentStatusFilter = ALL_STATUSES;
+            isRandomMode = randomModeCheckbox.checked;
+            updateTabUI();
+            applyFiltersAndPrepareDisplayList();
+        }
+
+        initializeApp();
+
+    </script>
+</body>
+</html>
